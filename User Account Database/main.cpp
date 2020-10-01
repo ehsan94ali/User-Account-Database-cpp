@@ -15,6 +15,7 @@ bool emailFound(string);
 bool verifyUsername(string);
 bool verifyPassword(string);
 bool verifyPhoneNumber(string);
+void formatPhoneNumber(string&);
 bool verifyEmail(string);
 
 string convert_to_hash(string);
@@ -124,14 +125,16 @@ void createUserAccount() {
 		cout << "\nPhone Number: ";
 		cin >> input;
 
-		if (!verifyPhoneNumber(input))
-			cout << "ERROR. Phone Number '" << input << "' is invalid." << endl; //ERROR message
+		if (!verifyPhoneNumber(input)) {
+			cout << "ERROR. Phone Number '" << input << "' is invalid. Phone number must only contain 10 digits" << endl; //ERROR message
+		}
 		else if (phoneNumberFound(input))
 			cout << "ERROR. Phone Number '" << input << "' is already registered with another account." << endl; //ERROR message
 		else
 			cout << "Phone Number '" << input << "' is now linked to your account." << endl;
 
 	} while (phoneNumberFound(input) || !verifyPhoneNumber(input));
+	formatPhoneNumber(input);
 	newUser.setPhoneNumber(input);
 
 	//email address
@@ -187,6 +190,27 @@ bool phoneNumberFound(string pn) {
 }
 bool verifyPhoneNumber(string pn) {
 	//make sure string contains 10 digits
+	if (pn.length() > 14)
+		return false;
+	int digitCounter = 0;
+	for (int i = 0; i < pn.length(); i++) {
+		if (isalpha(pn.at(i)))
+			return false;
+		else if (isdigit(pn.at(i)))
+		{
+			digitCounter++;
+			if (digitCounter > 10)
+				return false;
+		}
+	}
+	if (digitCounter != 10)
+		return false;
+	else
+		return true;
+}
+void formatPhoneNumber(string& pn) {
+	//format phone number to be just 10 numbers, no other characters
+
 }
 bool emailFound(string e) {
 	//make sure email doesn't already exist in user account database
@@ -201,6 +225,8 @@ string reverseHash(string h) {
 	//convert string (hash) into a password using a reverse-hash algorithm
 }
 void add_user_to_database(UserAccount user) {
+	//add user credentials to database
+
 
 }
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
