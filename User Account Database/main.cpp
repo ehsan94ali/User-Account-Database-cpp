@@ -99,7 +99,7 @@ void createUserAccount() {
 		else if (usernameFound(input))
 			cout << "ERROR. Username '" << input << "' already exists." << endl; //ERROR message
 		else
-			cout << "Username '" << input << "' is valid and available." << endl;
+			cout << "Username '" << input << "' is valid and available." << endl; //confirmation message
 
 	} while (usernameFound(input) || !verifyUsername(input));
 	newUser.setUsername(input);
@@ -113,7 +113,7 @@ void createUserAccount() {
 			cout << "ERROR. Invalid password. Password must be at least 8 characters " << endl
 			<< "and contain a special character, a number, AND a capital letter." << endl; //ERROR message
 		else
-			cout << "Password accepted." << endl;
+			cout << "Password accepted." << endl; //confirmation message
 
 		//add *verify password* option by entering twice
 
@@ -131,10 +131,9 @@ void createUserAccount() {
 		else if (phoneNumberFound(input))
 			cout << "ERROR. Phone Number '" << input << "' is already registered with another account." << endl; //ERROR message
 		else
-			cout << "Phone Number '" << input << "' is now linked to your account." << endl;
+			cout << "Phone Number '" << input << "' is now linked to your account." << endl; //confirmation message
 
 	} while (phoneNumberFound(input) || !verifyPhoneNumber(input));
-	formatPhoneNumber(input);
 	newUser.setPhoneNumber(input);
 
 	//email address
@@ -147,7 +146,7 @@ void createUserAccount() {
 		else if (emailFound(input))
 			cout << "ERROR. Email Address '" << input << "' is already registered with another account." << endl; //ERROR message
 		else
-			cout << "Email Address '" << input << "' is now linked to your account." << endl;
+			cout << "Email Address '" << input << "' is now linked to your account." << endl; //confirmation message
 
 	} while (emailFound(input) || !verifyEmail(input));
 	newUser.setEmail(input);
@@ -186,7 +185,7 @@ bool verifyPassword(string p) {
 
 }
 bool phoneNumberFound(string pn) {
-	//make sure phone number doesn't already exist in user account database
+	//make sure phone number (that has been formatted) doesn't already exist in user account database
 }
 bool verifyPhoneNumber(string pn) {
 	//make sure string contains 10 digits
@@ -210,7 +209,12 @@ bool verifyPhoneNumber(string pn) {
 }
 void formatPhoneNumber(string& pn) {
 	//format phone number to be just 10 numbers, no other characters
-
+	string format = "";
+	for (int i = 0; i < pn.length(); i++) {
+		if (isdigit(pn.at(i)))
+			format += pn.at(i);
+	}
+	pn = format;
 }
 bool emailFound(string e) {
 	//make sure email doesn't already exist in user account database
