@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <fstream>
+#include <regex>
 #include "UserAccount.h"
 using namespace std;
 
@@ -15,6 +16,7 @@ bool verifyUsername(string);
 bool verifyPassword(string);
 bool verifyPhoneNumber(string);
 bool verifyEmail(string);
+
 string convert_to_hash(string);
 string reverseHash(string);
 void add_user_to_database(UserAccount);
@@ -107,8 +109,8 @@ void createUserAccount() {
 		cin >> input;
 
 		if (!verifyPassword(input))
-			cout << "ERROR. Invalid password. Password must contain " << endl
-			<< "a special character, a number, AND a capital letter." << endl; //ERROR message
+			cout << "ERROR. Invalid password. Password must be at least 8 characters " << endl
+			<< "and contain a special character, a number, AND a capital letter." << endl; //ERROR message
 		else
 			cout << "Password accepted." << endl;
 
@@ -168,7 +170,17 @@ bool verifyUsername(string u) {
 	return true;
 }
 bool verifyPassword(string p) {
-	//make password restrictions (i.e. special character, number, capital letter, lowercase letter)
+	//make password restrictions (i.e. special character, number, capital letter, lowercase letter, minimum of 8 characters)
+	regex special("~!@#$%^&*()_+=-`{}[]|:;'?/>.<,");
+	regex number("1234567890");
+	regex capital("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	regex lowercase("abcdefghijklmnopqrstuvwxyz");
+
+	if (p.length() > 7 && regex_search(p, special) > 0 && regex_search(p, number) > 0 && regex_search(p, capital) > 0 && regex_search(p, lowercase) > 0)
+		return true;
+	else
+		return false;
+
 }
 bool phoneNumberFound(string pn) {
 	//make sure phone number doesn't already exist in user account database
