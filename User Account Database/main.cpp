@@ -92,7 +92,7 @@ void createUserAccount() {
 		cin >> input;
 
 		if (!verifyUsername(input))
-			cout << "ERROR. Username '" << input << "' is invalid." << endl; //ERROR message
+			cout << "ERROR. Username '" << input << "' is invalid. Username CANNOT contain spaces." << endl; //ERROR message
 		else if (usernameFound(input))
 			cout << "ERROR. Username '" << input << "' already exists." << endl; //ERROR message
 		else
@@ -161,6 +161,11 @@ bool usernameFound(string u) {
 }
 bool verifyUsername(string u) {
 	//make sure username doesn't contain spaces
+	for (int i = 0; i < u.length(); i++) {
+		if (isspace(u.at(i)))
+			return false;
+	}
+	return true;
 }
 bool verifyPassword(string p) {
 	//make password restrictions (i.e. special character, number, capital letter, lowercase letter)
