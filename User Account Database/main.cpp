@@ -173,7 +173,7 @@ bool verifyUsername(string u) {
 }
 bool verifyPassword(string p) {
 	//make password restrictions (i.e. special character, number, capital letter, lowercase letter, minimum of 8 characters)
-	regex special("~!@#$%^&*()_+=-`{}[]|:;'?/>.<,");
+	regex special("~!@#$%^&*()_+=-`{}[]|:;'?/>.<,\\\"");
 	regex number("1234567890");
 	regex capital("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 	regex lowercase("abcdefghijklmnopqrstuvwxyz");
@@ -186,6 +186,8 @@ bool verifyPassword(string p) {
 }
 bool phoneNumberFound(string pn) {
 	//make sure phone number (that has been formatted) doesn't already exist in user account database
+	formatPhoneNumber(pn);
+	//now read database and search for pn
 }
 bool verifyPhoneNumber(string pn) {
 	//make sure string contains 10 digits
@@ -218,9 +220,13 @@ void formatPhoneNumber(string& pn) {
 }
 bool emailFound(string e) {
 	//make sure email doesn't already exist in user account database
+
 }
 bool verifyEmail(string e) {
 	//make sure email is in correct format with regex (contains @ and . followed by 3 characters)
+	regex email_format("[\w.]+@\w+\.(com|net|gov|edu|org|ai|io)");
+
+
 }
 string convert_to_hash(string p) {
 	//convert string (password) into a hash using a hash algorithm
