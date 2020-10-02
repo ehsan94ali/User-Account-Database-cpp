@@ -244,5 +244,3 @@ void add_user_to_database(UserAccount user) {
 }
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
-
-[\\w\\._]+@[\\w_]+\\.(com|net|gov)
