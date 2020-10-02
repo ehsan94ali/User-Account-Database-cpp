@@ -224,8 +224,11 @@ bool emailFound(string e) {
 }
 bool verifyEmail(string e) {
 	//make sure email is in correct format with regex (contains @ and . followed by 3 characters)
-	regex email_format("[\w.]+@\w+\.(com|net|gov|edu|org|ai|io)");
-
+	regex email_format("[\\w.]+@\\w+\\.(com|net|gov|edu|org|ai|io)");
+	if (regex_match(e, email_format))
+		return true;
+	else
+		return false;
 
 }
 string convert_to_hash(string p) {
@@ -241,3 +244,5 @@ void add_user_to_database(UserAccount user) {
 }
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
+
+[\\w\\._]+@[\\w_]+\\.(com|net|gov)
