@@ -2,26 +2,24 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
+#include <direct.h>
 #include <fstream>
 #include <regex>
 #include <vector>
+#include <algorithm>
 #include "UserAccount.h"
 using namespace std;
 
 //function protocols
 int mainMenu();
-UserAccount* createUserAccount();
+void createUserAccount(UserAccount*, vector<string>&, vector<string>&, vector<string>&, vector<string>&);
 //database functions
-void download_database(vector<string>&, vector<string>&, vector<string>&);
-void download_usernames(vector<string>&);
-void download_phoneNumbers(vector<string>&);
-void download_emails(vector<string>&);
-bool usernameFound(string);
-bool phoneNumberFound(string);
-bool emailFound(string);
-string convert_to_hash(string);
+bool usernameFound(string, vector<string>&);
+bool phoneNumberFound(string, vector<string>&);
+bool emailFound(string, vector<string>&);
+string convertToHash(string);
 string reverseHash(string);
-void add_user_to_database(UserAccount*);
+void update_database(UserAccount*, vector<string>&, vector<string>&, vector<string>&, vector<string>&);
 //verify functions
 bool verifyUsername(string);
 bool verifyPassword(string);
@@ -33,39 +31,47 @@ bool verifyEmail(string);
 int main() {
 
 	bool database_online = false;
-	vector<string> usernames, phoneNumbers, emails;
+	vector<string> usernames, hashes, phoneNumbers, emails;
 
-	//create/open/download database
-	if (fstream("account_database.xlsx")) //if database already exists
-		database_online = true;
-	fstream userAccount_database("account_database.xlsx", ios::in | ios::out | ios::app); //open User Account database
-	if (!database_online) {
-		userAccount_database << "Username\tHash-Password\tPhone Number\tEmail Address\tPassword" << endl;
-		fstream username_database("username_database.xlsx", ios::in | ios::out | ios::app);
-		fstream phoneNumber_database("phoneNumber_database.xlsx", ios::in | ios::out | ios::app);
-		fstream email_database("email_database.xlsx", ios::in | ios::out | ios::app);
-	}
-	download_database(usernames, phoneNumbers, emails);
-
-
-
-	//DEBUGGING TOOL TO SEE FILE CONTENTS///////////////////////////////////////////////////////////////////////////////
-	string line;
-	int found;
-	while (!userAccount_database.eof()) {
-		getline(userAccount_database, line);
-		cout << line << endl;
-		found = line.find("Hash Password");
-		if (found >= 0)
-			cout << "Found in file" << endl;
-		else
-			cout << "Not found in file" << endl;
-
-	}
-	//^^^^^^^^ algorithm works, searches database line-by-line and compares literal string to string line
 	
-	//DEBUGGING TOOL TO SEE FILE CONTENTS///////////////////////////////////////////////////////////////////////////////
+	//create/open/download database
+	if (fstream("Databases/account_database.xlsx")) //if database already exists
+		database_online = true;
+	else
+		_mkdir("Databases");
 
+	fstream userAccount_database("Databases/account_database.xlsx", ios::in | ios::out | ios::app);
+	fstream username_database("Databases/username_database.txt", ios::in | ios::out | ios::app);
+	fstream hash_database("Databases/hash_database.txt", ios::in | ios::out | ios::app);
+	fstream phoneNumber_database("Databases/phoneNumber_database.txt", ios::in | ios::out | ios::app);
+	fstream email_database("Databases/email_database.txt", ios::in | ios::out | ios::app);
+
+	if (!database_online) {
+		userAccount_database << "Username\tHash-Password\tPhone Number\tEmail Address" << endl;
+	}
+	else {
+		string data;
+		//download usernames
+		while (!username_database.eof()) {
+			getline(username_database, data);
+			usernames.push_back(data);
+		}
+		//download hashes
+		while (!hash_database.eof()) {
+			getline(hash_database, data);
+			hashes.push_back(data);
+		}
+		//download phoneNumbers
+		while (!phoneNumber_database.eof()) {
+			getline(phoneNumber_database, data);
+			phoneNumbers.push_back(data);
+		}
+		//download emails
+		while (!email_database.eof()) {
+			getline(email_database, data);
+			emails.push_back(data);
+		}
+	}
 
 	int userInput = mainMenu();
 	cout << "userInput = " << userInput << endl;
@@ -73,7 +79,14 @@ int main() {
 	if (userInput == 1) {
 		//create user account
 		UserAccount* newAccount = &UserAccount();
-		newAccount = createUserAccount();
+		createUserAccount(newAccount, usernames, hashes, phoneNumbers, emails);
+		//update database files
+		userAccount_database << newAccount->getUsername() << "\t" << newAccount->getHash() << "\t" << newAccount->getPhoneNumber() << "\t" << newAccount->getEmail() << endl;
+		username_database << newAccount->getUsername() << endl;
+		hash_database << newAccount->getHash() << endl;
+		phoneNumber_database << newAccount->getPhoneNumber() << endl;
+		email_database << newAccount->getEmail() << endl;
+
 
 
 	}
@@ -115,12 +128,9 @@ int mainMenu() {
 	int userInput_int = userInput - '0';
 	return userInput_int;
 }
-UserAccount* createUserAccount() {
+void createUserAccount(UserAccount *newUser, vector<string> &usernames, vector<string> &hashes, vector<string> &phoneNumbers, vector<string> &emails) {
 
 	string input;
-	UserAccount *newUser = &UserAccount();
-
-
 	cout << "\nCreate New Account" << endl;
 	cout << "===================" << endl;
 
@@ -131,12 +141,12 @@ UserAccount* createUserAccount() {
 
 		if (!verifyUsername(input))
 			cout << "ERROR. Username '" << input << "' is invalid. Username CANNOT contain spaces." << endl; //ERROR message
-		else if (usernameFound(input))
+		else if (usernameFound(input, usernames))
 			cout << "ERROR. Username '" << input << "' already exists." << endl; //ERROR message
 		else
 			cout << "Username '" << input << "' is valid and available." << endl; //confirmation message
 
-	} while (usernameFound(input) || !verifyUsername(input));
+	} while (usernameFound(input, usernames) || !verifyUsername(input));
 	newUser->setUsername(input);
 
 	//password
@@ -153,7 +163,7 @@ UserAccount* createUserAccount() {
 		//add *verify password* option by entering twice
 
 	} while (!verifyPassword(input));
-	newUser->setHash(convert_to_hash(input));
+	newUser->setHash(convertToHash(input));
 
 	//phone number
 	do {
@@ -163,12 +173,13 @@ UserAccount* createUserAccount() {
 		if (!verifyPhoneNumber(input)) {
 			cout << "ERROR. Phone Number '" << input << "' is invalid. Phone number must only contain 10 digits" << endl; //ERROR message
 		}
-		else if (phoneNumberFound(input))
+		else if (phoneNumberFound(input, phoneNumbers))
 			cout << "ERROR. Phone Number '" << input << "' is already registered with another account." << endl; //ERROR message
 		else
 			cout << "Phone Number '" << input << "' is now linked to your account." << endl; //confirmation message
 
-	} while (phoneNumberFound(input) || !verifyPhoneNumber(input));
+	} while (phoneNumberFound(input, phoneNumbers) || !verifyPhoneNumber(input));
+	formatPhoneNumber(input);
 	newUser->setPhoneNumber(input);
 
 	//email address
@@ -178,24 +189,24 @@ UserAccount* createUserAccount() {
 
 		if (!verifyEmail(input))
 			cout << "ERROR. Email Address '" << input << "' is invalid." << endl; //ERROR message
-		else if (emailFound(input))
+		else if (emailFound(input, emails))
 			cout << "ERROR. Email Address '" << input << "' is already registered with another account." << endl; //ERROR message
 		else
 			cout << "Email Address '" << input << "' is now linked to your account." << endl; //confirmation message
 
-	} while (emailFound(input) || !verifyEmail(input));
+	} while (emailFound(input, emails) || !verifyEmail(input));
 	newUser->setEmail(input);
 
+	update_database(newUser, usernames, hashes, phoneNumbers, emails);
 	cout << "Account successfully created." << endl; //confirmation message
-	return newUser;
 }
 
 
 
 
-bool usernameFound(string u) {
+bool usernameFound(string u, vector<string> &usernames) {
 	//make sure username doesn't already exist in user account database
-	return true; //delete code, only here for debugging
+	return binary_search(usernames.begin(), usernames.end(), u);
 }
 bool verifyUsername(string u) {
 	//make sure username doesn't contain spaces
@@ -207,22 +218,31 @@ bool verifyUsername(string u) {
 }
 bool verifyPassword(string p) {
 	//make password restrictions (i.e. special character, number, capital letter, lowercase letter, minimum of 8 characters)
-	regex special("~!@#$%^&*()_+=-`{}[]|:;'?/>.<,\\\"");
-	regex number("1234567890");
-	regex capital("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-	regex lowercase("abcdefghijklmnopqrstuvwxyz");
-
-	if (p.length() > 7 && regex_search(p, special) > 0 && regex_search(p, number) > 0 && regex_search(p, capital) > 0 && regex_search(p, lowercase) > 0)
-		return true;
-	else
+	if (p.length() < 8)
 		return false;
 
+	bool containsSpecial=false, containsCapital=false, containsLower=false, containsNumber=false;
+	for (char c : p) {
+		if (containsSpecial && containsCapital && containsLower && containsNumber)
+			return true;
+		else {
+			if (isupper(c))
+				containsCapital = true;
+			else if (islower(c))
+				containsLower = true;
+			else if (isdigit(c))
+				containsNumber = true;
+			else
+				containsSpecial = true;
+		}
+	}
+
+	return (containsSpecial && containsCapital && containsLower && containsNumber);
 }
-bool phoneNumberFound(string pn) {
+bool phoneNumberFound(string pn, vector<string> &phoneNumbers) {
 	//make sure phone number (that has been formatted) doesn't already exist in user account database
 	formatPhoneNumber(pn);
-	//now read database and search for pn
-	return true; //delete code, only here for debugging
+	return binary_search(phoneNumbers.begin(), phoneNumbers.end(), pn);
 }
 bool verifyPhoneNumber(string pn) {
 	//make sure string contains 10 digits
@@ -244,7 +264,7 @@ bool verifyPhoneNumber(string pn) {
 	else
 		return true;
 }
-void formatPhoneNumber(string& pn) {
+void formatPhoneNumber(string &pn) {
 	//format phone number to be just 10 numbers, no other characters
 	string format = "";
 	for (int i = 0; i < pn.length(); i++) {
@@ -253,9 +273,9 @@ void formatPhoneNumber(string& pn) {
 	}
 	pn = format;
 }
-bool emailFound(string e) {
+bool emailFound(string e, vector<string> &emails) {
 	//make sure email doesn't already exist in user account database
-	return true; //delete code, only here for debugging
+	return binary_search(emails.begin(), emails.end(), e);
 }
 bool verifyEmail(string e) {
 	//make sure email is in correct format with regex (contains @ and . followed by 3 characters)
@@ -266,7 +286,7 @@ bool verifyEmail(string e) {
 		return false;
 
 }
-string convert_to_hash(string p) {
+string convertToHash(string p) {
 	//convert string (password) into a hash using a hash algorithm
 	return ""; //delete code, only here for debugging
 }
@@ -274,27 +294,13 @@ string reverseHash(string h) {
 	//convert string (hash) into a password using a reverse-hash algorithm
 	return ""; //delete code, only here for debugging
 }
-vector<string> download_database(vector<string>& usernames, vector<string>& phoneNumbers, vector<string>& emails) {
-	download_usernames(usernames);
-	download_phoneNumbers(phoneNumbers);
-	download_emails(emails);
-}
-vector<string> download_usernames(vector<string> &usernames) {
-
-}
-vector<string> download_phoneNumbers(vector<string> &phoneNumbers) {
-
-}
-vector<string> download_emails(vector<string> &emails) {
-
-}
-void add_user_to_database(UserAccount *user) {
+void update_database(UserAccount *user, vector<string> &usernames, vector<string> &hashes, vector<string> &phoneNumbers, vector<string> &emails) {
 	//add user credentials to database
-	fstream userAccount_database("account_database.xlsx", ios::in | ios::out | ios::app);
-	userAccount_database << user->getUsername() << "\t" << user->getHash() << "\t" << user->getPhoneNumber() << "\t" << user->getEmail();
-	//need to update all download structures (usernames, phoneNumbers, emails)
-
-	userAccount_database.close();
+	usernames.push_back(user->getUsername());
+	hashes.push_back(user->getHash());
+	phoneNumbers.push_back(user->getPhoneNumber());
+	emails.push_back(user->getEmail());
 }
+
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
