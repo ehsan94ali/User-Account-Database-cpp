@@ -1,51 +1,52 @@
 //libraries
 #include "UserAccount.h"
 #include <iostream>
+#include <string>
 using namespace std;
 
 //function definitions
 
 //default constructor
 UserAccount::UserAccount() {
-	this->username = "";
-	this->hash_password = "";
-	this->phoneNumber = "";
-	this->email = "";
+	username = "";
+	hash_password = "";
+	phoneNumber = "";
+	email = "";
 }
 //overloaded constructor
 UserAccount::UserAccount(string u, string hp, string pn, string e) {
-	this->username = u;
-	this->hash_password = hp;
-	this->phoneNumber = pn;
-	this->email = e;
+	username = u;
+	hash_password = hp;
+	phoneNumber = pn;
+	email = e;
 }
 
 //set functions
 void UserAccount::setUsername(string u) {
-	this->username = u;
+	username = u;
 }
 void UserAccount::setHash(string hp) {
-	this->hash_password = hp;
+	hash_password = hp;
 }
 void UserAccount::setPhoneNumber(string pn) {
-	this->phoneNumber = pn;
+	phoneNumber = pn;
 }
 void UserAccount::setEmail(string e) {
-	this->email = e;
+	email = e;
 }
 
 //get functions
 string UserAccount::getUsername() {
-	return this->username;
+	return username;
 }
 string UserAccount::getHash() {
-	return this->hash_password;
+	return hash_password;
 }
 string UserAccount::getPhoneNumber() {
-	return this->phoneNumber;
+	return phoneNumber;
 }
 string UserAccount::getEmail() {
-	return this->email;
+	return email;
 }
 
 //destructor
