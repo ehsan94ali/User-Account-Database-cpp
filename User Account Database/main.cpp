@@ -10,6 +10,8 @@
 #include "UserAccount.h"
 using namespace std;
 
+cout "this line was written locally on my laptop" << endl;
+
 //function protocols
 int mainMenu();
 void createUserAccount(UserAccount*, vector<string>&, vector<string>&, vector<string>&, vector<string>&);
