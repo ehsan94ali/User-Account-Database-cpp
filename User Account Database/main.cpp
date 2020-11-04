@@ -291,13 +291,13 @@ string convertToHash(string p) {
 	//convert string (password) into a hash using a hash algorithm
 	for (int i = 0; i < p.length(); i++)
 		p[i] = p[i] + 5;
-	return p; //delete code, only here for debugging
+	return p;
 }
 string reverseHash(string h) {
 	//convert string (hash) into a password using a reverse-hash algorithm
 	for (int i = 0; i < h.length(); i++)
 		h[i] = h[i] - 5;
-	return h; //delete code, only here for debugging
+	return h;
 }
 void update_database(UserAccount *user, vector<string> &usernames, vector<string> &hashes, vector<string> &phoneNumbers, vector<string> &emails) {
 	//add user credentials to database

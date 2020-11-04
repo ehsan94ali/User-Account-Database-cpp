@@ -37,16 +37,16 @@ void UserAccount::setEmail(string e) {
 
 //get functions
 string UserAccount::getUsername() {
-	return username;
+	return this->username;
 }
 string UserAccount::getHash() {
-	return hash_password;
+	return this->hash_password;
 }
 string UserAccount::getPhoneNumber() {
-	return phoneNumber;
+	return this->phoneNumber;
 }
 string UserAccount::getEmail() {
-	return email;
+	return this->email;
 }
 
 //destructor

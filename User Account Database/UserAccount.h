@@ -1,6 +1,9 @@
 #pragma once
 #ifndef USERACCOUNT_H
 #define USERACCOUNT_H
+#include <iostream>
+#include <string>
+using namespace std;
 
 class UserAccount
 {
