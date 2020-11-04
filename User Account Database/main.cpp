@@ -10,7 +10,6 @@
 #include "UserAccount.h"
 using namespace std;
 
-cout "this line was written locally on my laptop" << endl;
 
 //function protocols
 int mainMenu();
@@ -290,11 +289,15 @@ bool verifyEmail(string e) {
 }
 string convertToHash(string p) {
 	//convert string (password) into a hash using a hash algorithm
-	return ""; //delete code, only here for debugging
+	for (int i = 0; i < p.length(); i++)
+		p[i] = p[i] + 5;
+	return p; //delete code, only here for debugging
 }
 string reverseHash(string h) {
 	//convert string (hash) into a password using a reverse-hash algorithm
-	return ""; //delete code, only here for debugging
+	for (int i = 0; i < h.length(); i++)
+		h[i] = h[i] - 5;
+	return h; //delete code, only here for debugging
 }
 void update_database(UserAccount *user, vector<string> &usernames, vector<string> &hashes, vector<string> &phoneNumbers, vector<string> &emails) {
 	//add user credentials to database
